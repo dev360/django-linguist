@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.base import ModelBase
+from django.conf import settings
 
 class TranslationModelBase(ModelBase):
     
@@ -14,17 +15,18 @@ class TranslationModelBase(ModelBase):
                     raise Exception('%s.model_to_translate must be a type declaration.' % (name,))
                 
                 # Now set the dynamic field
-                model.add_to_class('parent', models.ForeignKey(model.model_to_translate))
+                model.add_to_class('parent', models.ForeignKey(model.model_to_translate, related_name='translations'))
                 
                 # Add uniqueness constraints
-                model.Meta.unique_together = ['parent', 'locale']
+                model._meta.unique_together = (('parent', 'locale'),)
         
         return model
 
         
 class TranslationModel(models.Model):
     __metaclass__ = TranslationModelBase
-    locale = models.CharField(max_length=5)
+    
+    locale = models.CharField(max_length=5, db_index=True, choices=settings.LANGUAGES)
     
     class Meta:
         abstract = True
