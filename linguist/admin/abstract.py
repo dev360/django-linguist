@@ -23,8 +23,13 @@ class TranslationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TranslationForm, self).__init__(*args, **kwargs)
         self.fields['locale'].widget = forms.HiddenInput()
+
     
-    
+def _get_friendly_name(locale):
+    matches = [x[1] for x in settings.LANGUAGES if x[0] == locale]
+    if matches and len(matches) == 1:
+        return matches[0]
+    return None
 
 class TranslationFormSet(BaseInlineFormSet):
     
@@ -39,6 +44,11 @@ class TranslationFormSet(BaseInlineFormSet):
             self.initial_languages = Set([form.initial['locale'] for form in uber])
             self.extra_languages = self.all_languages - self.initial_languages
         
+        # Hack-Hack!
+        for form in uber:
+            form.language = form.initial['locale']
+            form.language_name = _get_friendly_name(form.language)
+        
         return uber
     initial_forms = property(_get_initial_forms)
     
@@ -47,6 +57,8 @@ class TranslationFormSet(BaseInlineFormSet):
         
         for form, language in zip(forms, self.extra_languages):
             form.initial['locale'] = language
+            form.language = language
+            form.language_name = _get_friendly_name(form.language)
         return forms
         
     extra_forms = property(_get_extra_forms)
@@ -67,8 +79,6 @@ class TranslationInline(InlineModelAdmin):
     
     def __init__(self, *args, **kwargs):
         super(TranslationInline, self).__init__(*args, **kwargs)
-    
-    #tabbed_inline_admin_form
     
     extra = len(settings.LANGUAGES)
     max_num = len(settings.LANGUAGES)

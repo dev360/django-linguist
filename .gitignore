@@ -2,3 +2,4 @@
 ._*
 .svn
 .DS_Store
+tests/db

@@ -1,79 +1,136 @@
 {% load i18n adminmedia %}
+<style>
+	
+	.translation-nav { 
+	    margin: 5px 0 0 6px;
+		padding: 0;
+	}
+	
+	.translation-nav li { 
+	    list-style-type: none;
+		display: inline-block;
+		padding: 6px;
+		margin: 3px 3px 0 3px;
+		border: 1px solid #ccc;
+		background: #fff;
+		line-height: 16px;
+		font-size: 11px;
+	}
+	
+	.translation-nav li.active { padding: 8px 8px 6px 8px; margin: 3px 1px 0 1px; border-bottom: 1px solid #fff; font-size: 12px; }
+	
+	.translation-nav li a { color: #333; }
+	.translation-nav li.active a { font-weight: bold; }
+	
+	.translation-forms { border-top: 1px solid #ccc; margin-top: -1px; }
+	.translation-form { display: none !important; }
+	.translation-forms .active { display: block !important; }
+	
+	
+</style>
+
 <div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
   <h2>{{ inline_admin_formset.opts.verbose_name_plural|title }}</h2>
 {{ inline_admin_formset.formset.management_form }}
 {{ inline_admin_formset.formset.non_form_errors }}
+<div class="translations">
+	<ul class="translation-nav">
+	{% for inline_admin_form in inline_admin_formset %}
+		{% if inline_admin_form.form.language %}
+		<li><a href="javascript: void(0);" onclick="changeAdminLanguage('lang-{{inline_admin_form.form.language}}');" class="lang-{{inline_admin_form.form.language}}">{{inline_admin_form.form.language_name}}</a></li>
+		{% endif %}
+	{% endfor %}
+	</ul>
+	<div class="translation-forms">
+	{% for inline_admin_form in inline_admin_formset %}<div class="inline-related{% if forloop.last %} empty-form last-related{% endif %}" id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
+		<div class="translation-form lang-{{inline_admin_form.form.language}}">
+		
 
-{% for inline_admin_form in inline_admin_formset %}<div class="inline-related{% if forloop.last %} empty-form last-related{% endif %}" id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
-  <h3><b>{{ inline_admin_formset.opts.verbose_name|title }}:</b>&nbsp;<span class="inline_label">{% if inline_admin_form.original %}{{ inline_admin_form.original }}{% else %}#{{ forloop.counter }}{% endif %}</span>
-    {% if inline_admin_form.show_url %}<a href="../../../r/{{ inline_admin_form.original_content_type_id }}/{{ inline_admin_form.original.id }}/">{% trans "View on site" %}</a>{% endif %}
-    {% if inline_admin_formset.formset.can_delete and inline_admin_form.original %}<span class="delete">{{ inline_admin_form.deletion_field.field }} {{ inline_admin_form.deletion_field.label_tag }}</span>{% endif %}
-  </h3>
-  {% if inline_admin_form.form.non_field_errors %}{{ inline_admin_form.form.non_field_errors }}{% endif %}
-  {% for fieldset in tabbed_inline_admin_form %}
-    {% include "admin/includes/translation_inline_fieldset.html" %}
-  {% endfor %}
-  {% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
-  {{ inline_admin_form.fk_field.field }}
-</div>{% endfor %}
+		  	<!-- <h3><b>{{ inline_admin_formset.opts.verbose_name|title }}:</b>&nbsp;<span class="inline_label">{% if inline_admin_form.original %}{{ inline_admin_form.original }}{% else %}#{{ forloop.counter }}{% endif %}</span>
+		    {% if inline_admin_form.show_url %}<a href="../../../r/{{ inline_admin_form.original_content_type_id }}/{{ inline_admin_form.original.id }}/">{% trans "View on site" %}</a>{% endif %}
+		    {% if inline_admin_formset.formset.can_delete and inline_admin_form.original %}<span class="delete">{{ inline_admin_form.deletion_field.field }} {{ inline_admin_form.deletion_field.label_tag }}</span>{% endif %}
+		  	</h3>-->
+			{% if inline_admin_form.form.non_field_errors %}{{ inline_admin_form.form.non_field_errors }}{% endif %}
+			{% for fieldset in inline_admin_form %}
+		     {% include "admin/includes/translation_inline_fieldset.html" %}
+			{% endfor %}
+			{% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+			{{ inline_admin_form.fk_field.field }}
+		</div>
+	</div>{% endfor %}
+	</div>
 </div>
 
-<script type="text/javascript">
-(function($) {
-    $(document).ready(function() {
-        var rows = "#{{ inline_admin_formset.formset.prefix }}-group .inline-related";
-        var updateInlineLabel = function(row) {
-            $(rows).find(".inline_label").each(function(i) {
-                var count = i + 1;
-                $(this).html($(this).html().replace(/(#\d+)/g, "#" + count));
-            });
-        }
-        var reinitDateTimeShortCuts = function() {
-            // Reinitialize the calendar and clock widgets by force, yuck.
-            if (typeof DateTimeShortcuts != "undefined") {
-                $(".datetimeshortcuts").remove();
-                DateTimeShortcuts.init();
-            }
-        }
-        var updateSelectFilter = function() {
-            // If any SelectFilter widgets were added, instantiate a new instance.
-            if (typeof SelectFilter != "undefined"){
-                $(".selectfilter").each(function(index, value){
-                  var namearr = value.name.split('-');
-                  SelectFilter.init(value.id, namearr[namearr.length-1], false, "{% admin_media_prefix %}");
-                })
-                $(".selectfilterstacked").each(function(index, value){
-                  var namearr = value.name.split('-');
-                  SelectFilter.init(value.id, namearr[namearr.length-1], true, "{% admin_media_prefix %}");
-                })
-            }
-        }
-        var initPrepopulatedFields = function(row) {
-            row.find('.prepopulated_field').each(function() {
-                var field = $(this);
-                var input = field.find('input, select, textarea');
-                var dependency_list = input.data('dependency_list') || [];
-                var dependencies = row.find(dependency_list.join(',')).find('input, select, textarea');
-                if (dependencies.length) {
-                    input.prepopulate(dependencies, input.attr('maxlength'));
-                }
-            });
-        }
-        $(rows).formset({
-            prefix: "{{ inline_admin_formset.formset.prefix }}",
-            addText: "{% blocktrans with inline_admin_formset.opts.verbose_name|title as verbose_name %}Add another {{ verbose_name }}{% endblocktrans %}",
-            formCssClass: "dynamic-{{ inline_admin_formset.formset.prefix }}",
-            deleteCssClass: "inline-deletelink",
-            deleteText: "{% trans "Remove" %}",
-            emptyCssClass: "empty-form",
-            removed: updateInlineLabel,
-            added: (function(row) {
-                initPrepopulatedFields(row);
-                reinitDateTimeShortCuts();
-                updateSelectFilter();
-                updateInlineLabel(row);
-            })
-        });
-    });
-})(django.jQuery);
-</script>
+	<script type="text/javascript">
+	
+	function changeAdminLanguage(locale)
+	{
+		django.jQuery('.translations .translation-nav li').removeClass('active');
+		django.jQuery('.translations .translation-nav .'+locale).parent().addClass('active');
+		django.jQuery('.translations .translation-form').removeClass('active');
+		django.jQuery('.translations .translation-forms .'+locale).addClass('active');
+	}
+	
+	(function($) {
+	    $(document).ready(function() {
+			django.jQuery('.translations .translation-form').hide();
+			django.jQuery('.translations .translation-form:first').addClass('active');
+			django.jQuery('.translations .translation-nav li:first').addClass('active');
+			
+			var rows = "#{{ inline_admin_formset.formset.prefix }}-group .inline-related";
+	        var updateInlineLabel = function(row) {
+	            $(rows).find(".inline_label").each(function(i) {
+	                var count = i + 1;
+	                $(this).html($(this).html().replace(/(#\d+)/g, "#" + count));
+	            });
+	        }
+	        var reinitDateTimeShortCuts = function() {
+	            // Reinitialize the calendar and clock widgets by force, yuck.
+	            if (typeof DateTimeShortcuts != "undefined") {
+	                $(".datetimeshortcuts").remove();
+	                DateTimeShortcuts.init();
+	            }
+	        }
+	        var updateSelectFilter = function() {
+	            // If any SelectFilter widgets were added, instantiate a new instance.
+	            if (typeof SelectFilter != "undefined"){
+	                $(".selectfilter").each(function(index, value){
+	                  var namearr = value.name.split('-');
+	                  SelectFilter.init(value.id, namearr[namearr.length-1], false, "{% admin_media_prefix %}");
+	                })
+	                $(".selectfilterstacked").each(function(index, value){
+	                  var namearr = value.name.split('-');
+	                  SelectFilter.init(value.id, namearr[namearr.length-1], true, "{% admin_media_prefix %}");
+	                })
+	            }
+	        }
+	        var initPrepopulatedFields = function(row) {
+	            row.find('.prepopulated_field').each(function() {
+	                var field = $(this);
+	                var input = field.find('input, select, textarea');
+	                var dependency_list = input.data('dependency_list') || [];
+	                var dependencies = row.find(dependency_list.join(',')).find('input, select, textarea');
+	                if (dependencies.length) {
+	                    input.prepopulate(dependencies, input.attr('maxlength'));
+	                }
+	            });
+	        }
+	        $(rows).formset({
+	            prefix: "{{ inline_admin_formset.formset.prefix }}",
+	            addText: "{% blocktrans with inline_admin_formset.opts.verbose_name|title as verbose_name %}Add another {{ verbose_name }}{% endblocktrans %}",
+	            formCssClass: "dynamic-{{ inline_admin_formset.formset.prefix }}",
+	            deleteCssClass: "inline-deletelink",
+	            deleteText: "{% trans "Remove" %}",
+	            emptyCssClass: "empty-form",
+	            removed: updateInlineLabel,
+	            added: (function(row) {
+	                initPrepopulatedFields(row);
+	                reinitDateTimeShortCuts();
+	                updateSelectFilter();
+	                updateInlineLabel(row);
+	            })
+	        });
+	    });
+	})(django.jQuery);
+	</script>
+</div>
