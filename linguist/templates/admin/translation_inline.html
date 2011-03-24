@@ -18,6 +18,7 @@
 	}
 	
 	.translation-nav li.active { padding: 8px 8px 6px 8px; margin: 3px 1px 0 1px; border-bottom: 1px solid #fff; font-size: 12px; }
+	.translation-nav li.error { background: #FFC; }
 	
 	.translation-nav li a { color: #333; }
 	.translation-nav li.active a { font-weight: bold; }
@@ -37,7 +38,8 @@
 	<ul class="translation-nav">
 	{% for inline_admin_form in inline_admin_formset %}
 		{% if inline_admin_form.form.language %}
-		<li><a href="javascript: void(0);" onclick="changeAdminLanguage('lang-{{inline_admin_form.form.language}}');" class="lang-{{inline_admin_form.form.language}}">{{inline_admin_form.form.language_name}}</a></li>
+		
+		<li class="{% if inline_admin_form.form.errors %}error{% endif %}"><a href="javascript: void(0);" onclick="changeAdminLanguage('lang-{{inline_admin_form.form.language}}');" class="lang-{{inline_admin_form.form.language}}">{{inline_admin_form.form.language_name}}</a></li>
 		{% endif %}
 	{% endfor %}
 	</ul>
