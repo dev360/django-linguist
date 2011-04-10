@@ -7,22 +7,19 @@ The goal of this project is to provide basic localization support for your model
 This is achieved by specifying a one-to-many relationship between your model and the translations, and by
 building in basic support for viewing this relationship into the django admin.
 
-This project is merely a proof of concept at this stage. Please see the tests/testproject files to get an
-idea of how this works.
+This project is in production use, but code may change as it matures. Please see the tests/testproject 
+files to get an idea of how to set it up.
 
 The completed features as of right now are:
 	- Support for specifying the model and the translation models
 	- Admin support for tabs which do not require multiple posts
 	  in order to fill out all the translations for an object.
-	
+	- You can make one or more languages required to force the
+	  user to enter them by setting the TRANSLATION_REQUIRED_LANGUAGES
+	  property
 
 Outstanding issues / missing features:
 	- A middleware that you can access the current language from
 	- Custom manager that would allow for more convenient access
 	  of localized content.
-	- Better presentation of validation errors in admin.
-	- Add hidden field to InlineForm that indicate whether
-	  the model has been changed or not. Right now, it will
-	  throw error since the hidden field on the page contains
-	  the locale.
 	- Need to decide on a syntax for accessing translated content
