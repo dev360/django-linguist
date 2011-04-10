@@ -112,3 +112,5 @@ LANGUAGES = (
 		('sv-se', gettext('Swedish')),
         ('es', gettext('Spanish')),
 )
+
+TRANSLATION_REQUIRED_LANGUAGES = LANGUAGES[:1]

@@ -1,4 +1,4 @@
-{% load i18n adminmedia %}
+{% load i18n adminmedia formhelpers %}
 <style>
 	
 	.translation-nav { 
@@ -36,7 +36,7 @@
 {{ inline_admin_formset.formset.non_form_errors }}
 <div class="translations">
 	<ul class="translation-nav">
-	{% for inline_admin_form in inline_admin_formset %}
+	{% for inline_admin_form in inline_admin_formset|order_by_language %}
 		{% if inline_admin_form.form.language %}
 		
 		<li class="{% if inline_admin_form.form.errors %}error{% endif %}"><a href="javascript: void(0);" onclick="changeAdminLanguage('lang-{{inline_admin_form.form.language}}');" class="lang-{{inline_admin_form.form.language}}">{{inline_admin_form.form.language_name}}</a></li>
@@ -44,7 +44,9 @@
 	{% endfor %}
 	</ul>
 	<div class="translation-forms">
-	{% for inline_admin_form in inline_admin_formset %}<div class="inline-related{% if forloop.last %} empty-form last-related{% endif %}" id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
+	{% for inline_admin_form in inline_admin_formset %}
+	{% if inline_admin_form.form.language %}{% endif %}
+	<div class="inline-related{% if forloop.last %} empty-form last-related{% endif %}" id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
 		<div class="translation-form lang-{{inline_admin_form.form.language}}">
 		
 
@@ -73,11 +75,23 @@
 		django.jQuery('.translations .translation-forms .'+locale).addClass('active');
 	}
 	
+	function setLanguageVisibility()
+	{
+		var className = null;
+		django.jQuery('.translations .translation-nav li:first a').each(function(){
+			className = this.className;
+		});
+		
+		django.jQuery('.translations .translation-form').hide();
+		django.jQuery('.translations .translation-nav li:first').addClass('active');
+		django.jQuery('.translations .translation-forms .'+ className).addClass('active');
+	}
+	
 	(function($) {
 	    $(document).ready(function() {
-			django.jQuery('.translations .translation-form').hide();
-			django.jQuery('.translations .translation-form:first').addClass('active');
-			django.jQuery('.translations .translation-nav li:first').addClass('active');
+			
+			setLanguageVisibility();
+			
 			
 			var rows = "#{{ inline_admin_formset.formset.prefix }}-group .inline-related";
 	        var updateInlineLabel = function(row) {
