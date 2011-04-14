@@ -4,3 +4,6 @@
 .DS_Store
 tests/db
 cfg/py
+build
+dist
+*.egg-info
