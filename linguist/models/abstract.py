@@ -36,7 +36,7 @@ class TranslationQuerySet(models.query.QuerySet):
         #
         field_name = field_arr[0] if len(field_arr) > 0 else field_query 
         
-        if field_name not in fields:
+        if field_name not in ('pk','id') and field_name not in fields:
             return 'parent__'+field_query
         else:
             return field_query
@@ -104,7 +104,7 @@ class TranslationModel(models.Model):
         try:
             return super(TranslationModel, self).__getattribute__(attr)
         except:
-            if attr in self.model_to_translate._meta.get_all_field_names():
+            if attr != 'pk' and attr in self.model_to_translate._meta.get_all_field_names():
                 parent = super(TranslationModel, self).__getattribute__('parent')
                 return super(models.Model, parent).__getattribute__(attr)
             else:
