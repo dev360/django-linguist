@@ -10,7 +10,10 @@ from django.forms.util import ErrorList
 
 from types import TupleType
 
-from sets import Set
+try:
+    type(set)
+except:
+    from sets import Set as set
 
 csrf_protect_m = method_decorator(csrf_protect)
 
@@ -70,8 +73,8 @@ class TranslationFormSet(BaseInlineFormSet):
             
             initial_forms = super(TranslationFormSet, self)._get_initial_forms()
             
-            self.all_languages = Set([lang[0] for lang in settings.LANGUAGES])
-            self.initial_languages = Set([form.initial['locale'] for form in initial_forms])
+            self.all_languages = set([lang[0] for lang in settings.LANGUAGES])
+            self.initial_languages = set([form.initial['locale'] for form in initial_forms])
             self.extra_languages = self.all_languages - self.initial_languages
     
     

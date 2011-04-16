@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Products</h1>
+	<div class="search">
+		<form method="post" action="/search/">
+			{% csrf_token %}
+			<label for="search">Search for products</label>
+			<input id="search" name="search" type="text" />
+			<input type="submit" value="Search">
+		</form>
+	</div>
+	{% if products %}
+	<div class="products">
+		{% for product in products %}
+			<div class="product">
+				<h3><span>{{product.model_number}}</span>{{product.title}}</h3>
+				<p>{{product.description}}</p>
+			</div>
+		{% endfor %}
+	</div>		
+	{% else %}
+	<p class="notice">No products could be found.</p>
+	{% endif %}
+{% endblock %}

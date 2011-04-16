@@ -1,0 +1,12 @@
+{% extends base.html %}
+
+{% block content %}
+	{% if product %}
+	<div class="product">
+		<h3>{{product.translation.name}}</h3>
+		<p>{{product.translation.description}}</p>
+	</div>
+	{% else %}
+	<p class="notice">The product could not be found.</p>
+	{% endif %}
+{% endblock %}
