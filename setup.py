@@ -1,14 +1,15 @@
 import os
 from setuptools import setup, find_packages
 
-dir_path = os.path.abspath( __file__ ).replace('setup.py','')
-os.chdir(dir_path)
+inst_dir = os.path.abspath( __file__ ).replace('setup.py','')
+os.chdir(inst_dir)
 
 data_files = []
-for root, subFolders, files in os.walk(os.path.join(dir_path,'linguist','templates')):
-    for file in files:
-        data_files.append([root, os.path.join(root,file)])
 
+for dirpath, dirnames, filenames in os.walk(os.path.join(inst_dir, 'linguist', 'templates')):
+    if filenames:
+        data_files.append(  [os.path.relpath(dirpath, inst_dir), 
+                            [os.path.relpath(os.path.join(dirpath, f), inst_dir) for f in filenames]])
 
 setup(
     name='django-linguist',
