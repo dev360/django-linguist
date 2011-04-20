@@ -8,8 +8,8 @@ data_files = []
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(inst_dir, 'linguist', 'templates')):
     if filenames:
-        data_files.append(  [os.path.relpath(dirpath, inst_dir), 
-                            [os.path.relpath(os.path.join(dirpath, f), inst_dir) for f in filenames]])
+        data_files.append(  [ dirpath.replace(inst_dir, ""),
+                            [ os.path.join(dirpath, f).replace(inst_dir, "") for f in filenames]])
 
 setup(
     name='django-linguist',
